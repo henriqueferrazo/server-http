@@ -29,4 +29,25 @@ http.createServer((req, res) => {
         '.otf': 'application/font-otf',
         '.wasm': 'application/wasm'
     }
-})
+
+    let contentType = mimeTypes[extname] || 'application/octet=stream';
+
+    fs.readFile(filePath, (error, content) => {
+        if ( error ) {
+            if( error.code == 'ENOENT' ) {
+                fs.readFile('./404.html', (error, content) => {
+                    res.writeHead(404, { 'Content-Type' : 'text/html' });
+                    res.end( content, 'utf-8' );
+                })
+            } else {
+                res.writeHead(500);
+                res.end(`Desculpe, contate o responsavel pelo servidor para informar o erro ${error.code} ...` )
+            }
+        } else {
+            res.writeHead(500);
+            res.end(content, 'utf-8');
+        }
+    });
+
+}).listen(8080);
+console.log("Servidor executando em http://127.0.0.1:8080/");
