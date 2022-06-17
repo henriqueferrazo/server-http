@@ -5,4 +5,6 @@ const path = require('path');
 
 http.createServer((req, res) => {
     console.log('req', req.url);
+
+    let filePath = '.' + req.url;
 })
