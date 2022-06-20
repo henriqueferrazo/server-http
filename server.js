@@ -15,17 +15,17 @@ let mapMimeType = {
 }
 
 http.createServer((req, res) => {
-    console.log('req', req.url);
 
     const parseUrl = url.parse(req.url);
-    if(parseUrl.pathname === "/") {
+    const pathURLname = `${parseUrl.pathname}`;
+    if(pathURLname === "/") {
         let filesLink = '<ul>';
         res.setHeader('Content-type', 'text/html');
-        let filesList = fs.readdirSync("./public");
+        let filesList = fs.readdirSync("./");
 
         filesList.forEach( el => {
-            if(fs.statSync("./public/" + el).isFile() ) {
-                filesLink += `<br/><li><a href = './${el}'>
+            if(fs.statSync("./" + el).isFile()) {
+                filesLink += `<br/><li><a href="./${el}">
                 ${el}
                 </a></li>`;
             }
@@ -35,24 +35,22 @@ http.createServer((req, res) => {
         res.end("<h1> Lista de Arquivos:<h1>" + filesLink);
     }
 
-    const sanitizePath = path.normalize(parseUrl.pathname).replace(/^(\.\.[\/\\])+/, '');
-    let pathname = path.join(__dirname, sanitizePath);
-
-    if (!fs.existsSync(pathname)) {
+    if (!fs.existsSync(pathURLname)) {
         res.statusCode = 404;
-        res.end(`Arquivo ${pathname} não encontrado!`)
+        res.end(`Arquivo ${pathURLname} não encontrado!`);
     } else {
-        fs.readFile(pathname, (err, data) => {
+        fs.readFile(pathURLname, (err, data) => {
             if(err) {
+                console.log(err);
                 res.statusCode = 500;
-                res.end(`Erro ao ler o arquivo ${pathname}`);
+                res.end(`Erro ao ler o arquivo ${pathURLname}`);
             } else {
-                const extensions = path.parse(pathname).ext;
+                const extensions = path.parse(pathURLname).ext;
                 res.setHeader('Content-type', mapMimeType[extensions] || 'text/plain');
                 res.end(data);
             }
         })
     }
 }).listen( port, () => {
-    console.log(`Servidor executando em http://127.0.0.1:8080/`);
+    console.log(`Servidor executando em http://127.0.0.1:${port}/`);
 });
